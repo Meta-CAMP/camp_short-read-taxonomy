@@ -1,6 +1,6 @@
 # Short-Read Taxonomy
 
-[![Documentation Status](https://img.shields.io/badge/docs-passing-brightgreen.svg)](https://camp-documentation.readthedocs.io/en/latest/shortreadtax/index.html) ![Version](https://img.shields.io/badge/version-0.8.0-brightgreen)
+[![Documentation Status](https://img.shields.io/badge/docs-passing-brightgreen.svg)](https://camp-documentation.readthedocs.io/en/latest/shortreadtax/index.html) ![Version](https://img.shields.io/badge/version-0.8.1-brightgreen)
 
 <!-- [![Documentation Status](https://img.shields.io/readthedocs/camp_short-read-taxonomy)](https://camp-documentation.readthedocs.io/en/latest/short-read-taxonomy.html) -->
 
@@ -15,9 +15,9 @@ There are three taxonomic classification tools integrated which can be run in an
 > [!TIP]
 > All databases used in CAMP modules will also be available for download on Zenodo (link TBD).
 
-1. Clone repo from [Github](<https://github.com/MetaSUB-CAMP/camp_short-read-taxonomy>).
+1. Clone repo from [Github](<https://github.com/Meta-CAMP/camp_short-read-taxonomy>).
 ```Bash
-git clone https://github.com/MetaSUB-CAMP/camp_short-read-taxonomy
+git clone https://github.com/Meta-CAMP/camp_short-read-taxonomy
 ```
 
 2. Set up the conda environment (contains Snakemake, Click, and other essentials) using `configs/conda/short_read_taxonomy.yaml`. 
