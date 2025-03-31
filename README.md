@@ -1,4 +1,4 @@
-# Short-Read Taxonomy
+//# Short-Read Taxonomy
 
 [![Documentation Status](https://img.shields.io/badge/docs-passing-brightgreen.svg)](https://camp-documentation.readthedocs.io/en/latest/shortreadtax/index.html) ![Version](https://img.shields.io/badge/version-0.8.1-brightgreen)
 
@@ -29,8 +29,8 @@ If you don't already have `conda` handy, we recommend installing `miniforge`, wh
 
 # Create and activate conda environment 
 cd camp_short-read-taxonomy
-conda env create -f configs/conda/short_read_taxonomy.yaml
-conda activate short_read_taxonomy
+conda env create -f configs/conda/short-read-taxonomy.yaml
+conda activate short-read-taxonomy
 ```
 
 3. `bbmap` needs to be installed directly from SourceForge with the following commands. After installation, the location of the executable (called `bbmap/bbmask.sh`) needs to be added to `test_data/parameters.yaml` and `configs/parameters.yaml` under `bbmask_scr`.
