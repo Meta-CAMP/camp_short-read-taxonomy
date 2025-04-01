@@ -52,17 +52,7 @@ def workflow_mode(wildcards):
 		out.extend(expand(join(dirs.OUT, 'final_reports', 'kraken_bracken_{rank}.csv'), rank = RANKS))
 		check_make(join(dirs.OUT,'final_reports','unclassified','kraken_bracken'))
 		out.extend(expand(join(dirs.OUT, 'final_reports', 'unclassified', 'kraken_bracken', '{sample}_{dir}.fastq.gz'), \
-			sample = SAMPLES, dir = FQ_DIRS)),
-	if config['xtree']:
-		XTREE = [g.strip() for g in config['xtree'].split(',')]
-		for g in XTREE:
-			out_dir = join(dirs.OUT, '3_xtree', g)
-			if not exists(out_dir):
-				os.makedirs(out_dir)
-			if g == 'bacterial_archaeal':
-				out.extend(expand(join(dirs.OUT,'final_reports','xtree_{rank}.csv'), rank = RANKS))
-			else:
-				out.append(join(dirs.OUT, '3_xtree', 'merged', g + '_ra.tsv'))
+			sample = SAMPLES, dir = FQ_DIRS))
 	return out
 
 
@@ -75,20 +65,19 @@ rule all:
 
 
 rule mask_reads:
-	input:
-		join(dirs.TMP,'{sample}_{dir}.fastq.gz'),
-	output:
-		join(dirs.OUT, '0_masked_fastqs', '{sample}_{dir}.masked.fastq.gz'),
-	log:
-		join(dirs.LOG, 'masking', '{sample}_{dir}.out'),
-	threads:
-		config['mask_reads_threads'],
-	params:
-		bbmask_scr = config['bbmask_script'],
-	shell:
-		"""
-		{params.bbmask_scr} in={input} out={output} overwrite=t threads={threads} > {log} 2>&1
-		"""
+    input:
+        join(dirs.TMP, '{sample}_{dir}.fastq.gz'),
+    output:
+        join(dirs.OUT, '0_masked_fastqs', '{sample}_{dir}.masked.fastq.gz'),
+    log:
+        join(dirs.LOG, 'masking', '{sample}_{dir}.out'),
+    threads:
+        config['mask_reads_threads'],
+    conda: "bbmap"
+    shell:
+        """
+        bbmask.sh in={input} out={output} overwrite=t threads={threads} > {log} 2>&1
+        """
 
 
 rule scrub_fastq_captions:
@@ -110,8 +99,7 @@ rule metaphlan:
 		sam = join(dirs.OUT,'1_metaphlan','raw_output','{sample}.sam'),
 	log:
 		join(dirs.LOG, 'metaphlan', '{sample}.out'),
-	conda:
-		join(config['env_yamls'], 'metaphlan.yaml'),
+	conda: "metaphlan",
 	threads:
 		config['metaphlan_threads'],
 	resources:
@@ -184,8 +172,7 @@ rule extract_unclassified_metaphlan:
 		fwd = join(dirs.OUT,'final_reports','unclassified', 'metaphlan', '{sample}_1.fastq.gz'),
 		rev = join(dirs.OUT,'final_reports','unclassified', 'metaphlan', '{sample}_2.fastq.gz'),
 		unp = join(dirs.OUT,'final_reports','unclassified', 'metaphlan', '{sample}_unp.fastq.gz'),
-	conda:
-		join(config['env_yamls'], 'metaphlan.yaml'),
+	conda: "metaphlan",
 	threads:
 		config['metaphlan_threads'],
 	resources:
@@ -230,8 +217,7 @@ rule bracken:
 		join(dirs.OUT, '2_kraken2', 'raw_bracken','{sample}', '{rank}.tsv'),
 	log:
 		join(dirs.LOG, 'bracken', '{sample}.{rank}.out'),
-	conda:
-		join(config['env_yamls'], 'bracken.yaml'),
+	conda: "bracken",
 	params:
 		out_dir = join(dirs.OUT,'2_kraken2', 'raw_bracken', '{sample}'),
 		rank = lambda wildcards: '{}'.format(wildcards.rank)[:1].capitalize(),
@@ -291,87 +277,6 @@ rule extract_unclassified_kraken:
 		"""
 		seqtk subseq {input.fq} {input.unc} | gzip > {output}
 		"""
-
-
-rule make_xtree_input:
-	input:
-		lambda wildcards: expand(join(dirs.OUT,'1_metaphlan','{sample}_{dir}.fastq'), sample = wildcards.sample, dir = FQ_DIRS),
-	output:
-		join(dirs.OUT, '3_xtree', '{sample}.fastq'),
-	threads: 
-		config['xtree_threads'],
-	resources:
-		mem_mb = config['xtree_mem_mb'],
-	shell:
-		"""
-		cat {input} > {output}
-		"""
-
-
-rule xtree:
-	input:
-		fq = join(dirs.OUT, '3_xtree', '{sample}.fastq'),
-	output:
-		ref = join(dirs.OUT, '3_xtree', '{xtree_group}','{sample}.ref'),
-		cov = join(dirs.OUT, '3_xtree', '{xtree_group}','{sample}.cov'),
-	log:
-		join(dirs.LOG, 'xtree', '{sample}.{xtree_group}.out'),
-	threads: 
-		config['xtree_threads'],
-	resources:
-		mem_mb = config['xtree_mem_mb'],
-	params:
-		out_dir = join(dirs.OUT, '3_xtree', '{xtree_group}'),
-		ext_script = join(dirs_scr, 'run_xtree.sh'),
-		xtree_exec = config['xtree_executable'],
-		db = lambda wildcards: config['{}_database'.format(wildcards.xtree_group)],
-		prefix = join(dirs.OUT, '3_xtree', '{xtree_group}','{sample}'),
-	shell:
-		"""
-		mkdir -p {params.out_dir}
-		{params.xtree_exec} --seqs {input.fq} --threads {threads} --db {params.db} --ref-out {output.ref} --cov-out {output.cov} --redistribute > {log} 2>&1
-		"""	
-# {params.ext_script} {params.xtree_exec} {threads} {input.fq} {params.db} {params.prefix} > {log} 2>&1
-
-
-rule merge_xtree_outputs:
-	input:
-		lambda wildcards: expand(join(dirs.OUT, '3_xtree', '{xtree_group}', '{sample}.cov'), xtree_group = wildcards.xtree_group, sample = SAMPLES),
-	output:
-		join(dirs.OUT, '3_xtree', 'merged', '{xtree_group}_ra.tsv'),
-	params:
-		ext_script = join(dirs_scr, 'post_process_xtree.R'),
-		indir = join(dirs.OUT, '3_xtree', '{xtree_group}'),
-		xtree_group = '{xtree_group}',
-		out_dir = join(dirs.OUT,'3_xtree', 'merged'),
-		thresh = config['min_rel_abund'],
-		hthresh = config['hthresh'],
-		uthresh = config['uthresh'],
-		mappings = join(dirs_ext, 'xtree_all_db_mapping'),
-	shell: 
-		"""
-		Rscript {params.ext_script} {params.indir} {params.thresh} {params.hthresh} {params.uthresh} {params.out_dir} {params.xtree_group} {params.mappings}
-		"""
-
-
-rule standardize_xtree:
-	input:
-		join(dirs.OUT, '3_xtree', 'merged', 'bacterial_archaeal_ra.tsv'),
-	output:
-		join(dirs.OUT,'final_reports','xtree_species.csv'),
-		join(dirs.OUT,'final_reports','xtree_genus.csv'),
-		join(dirs.OUT,'final_reports','xtree_family.csv'),
-		join(dirs.OUT,'final_reports','xtree_order.csv'),
-		join(dirs.OUT,'final_reports','xtree_class.csv'),
-		join(dirs.OUT,'final_reports','xtree_phylum.csv'),
-		# *[join(dirs.OUT, 'final_reports', 'xtree_{rank}.csv') for rank in RANKS],
-		# lambda wildcards: expand(join(dirs.OUT, 'final_reports', 'xtree_{rank}.csv'), rank = RANKS),
-	params:
-		out_dir = join(dirs.OUT, 'final_reports'),
-		ncbi_taxid = config['ncbi_tax_names'],
-		uthresh = config['uthresh'],
-	run:
-		standardize_xtree(str(input), str(params.out_dir), str(params.ncbi_taxid), float(params.uthresh))
 
 
 rule make_config:
