@@ -148,6 +148,7 @@ PARAMS_FILE="test_data/parameters.yaml"
 MPHLAN_PATH="${DATABASE_PATHS["METAPHLAN_DB"]}"
 KRAKEN_PATH="${DATABASE_PATHS["KRAKEN2_DB"]}"
 KRAKEN_EXECUTABLE=$(conda run -n bracken which kraken2 2>/dev/null)
+BBMASK_SCR=$(conda run -n bbmap which bbmask.sh 2> /dev/null)
 
 # Remove existing parameters.yaml if present
 [ -f "$PARAMS_FILE" ] && rm "$PARAMS_FILE"
@@ -168,7 +169,7 @@ min_rel_abund: 0.001
 
 # --- masking --- #
 
-bbmask_script: ''
+bbmask_script: '$BBMASK_SCR'
 
 
 # --- metaphlan --- #
@@ -206,7 +207,7 @@ min_rel_abund: 0.001
 
 # --- masking --- #
 
-bbmask_script: ''
+bbmask_script: '$BBMASK_SCR'
 
 
 # --- metaphlan --- #
