@@ -143,7 +143,7 @@ ask_taxonomy_db "Kraken2" "KRAKEN2_DB"
 
 # Generate parameters.yaml
 SCRIPT_DIR=$(pwd)
-EXT_PATH="$SR_TAXONOMY_WORK_DIR/workflow/ext"
+EXT_PATH="$DEFAULT_PATH/workflow/ext"
 PARAMS_FILE="test_data/parameters.yaml"
 MPHLAN_PATH="${DATABASE_PATHS["METAPHLAN_DB"]}"
 KRAKEN_PATH="${DATABASE_PATHS["KRAKEN2_DB"]}"
