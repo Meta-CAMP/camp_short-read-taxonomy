@@ -33,48 +33,16 @@ conda env create -f configs/conda/short-read-taxonomy.yaml
 conda activate short-read-taxonomy
 ```
 
-3. `bbmap` needs to be installed directly from SourceForge with the following commands. After installation, the location of the executable (called `bbmap/bbmask.sh`) needs to be added to `test_data/parameters.yaml` and `configs/parameters.yaml` under `bbmask_scr`.
+3. Set up the rest of the module interactively by running `setup.sh`. This will install the necessary conda environments (if they have not been installed already) and databases, and generate `parameters.yaml` as well as set up the paths in `test_data/samples.csv` for testing. 
 ```Bash
-https://sourceforge.net/projects/bbmap/files/latest/download
-tar -xzf download
+source setup.sh
+
+# If you encounter issues where conda activate is not recognized, follow these steps to properly initialize Conda
+conda init 
+source ~/.bashrc # or source ~/.zshrc
 ```
 
-4. XTree also needs to be installed from Github directly with the following commands. After installation, the location of the executable (called `UTree/xtree`, needs to `chmod`-ed) needs to be added to `test_data/parameters.yaml` and `configs/parameters.yaml` under `xtree_executable`.
-```Bash
-git clone https://github.com/GabeAl/UTree
-```
-
-5. Download the databases for the taxonomic pipelines you want to use. Be sure to update the locations of the databases in the `parameters.yaml` file. This may take a few hours.
-* Note: If you want to speed up the download process, trying installing `axel` and replacing the wget with `axel -a`!
-
-6. For MetaPhlAn4:
-```Bash
-wget https://s3.us-east-1.wasabisys.com/camp-databases/v0.1.1/taxonomy/metaphlan_20220926.tar.gz
-tar -zxvf metaphlan_20220926.tar.gz
-
-# An alternate option for automatic installation using the MetaPhlAn4 command
-metaphlan --install --bowtie2db /path/to/database_dir
-```
-
-7. For Kraken2:
-    - The NCBI Taxonomy database's pairing of names to accession IDs was downloaded along with the Kraken2 database. It can be found at ``/path/to/Databases/Kraken2/taxonomy/names.dmp``.
-    - Note: The Kraken2 database hosted at Wasabi is currently incomplete. Please use the database download command from Kraken2's Github
-```Bash
-# wget https://s3.us-east-1.wasabisys.com/camp-databases/v0.1.1/taxonomy/Kraken2.tar.gz
-# tar -zxvf Kraken2.tar.gz
-/path/to/bin/kraken2/kraken2-build --standard --threads 40 --db /path/to/Databases/Kraken2_10182023
-```
-
-8. For xtree:
-    - Note: The xtree database hosted at Wasabi is currently incomplete. Download details TBD.
-```Bash
-# wget https://s3.us-east-1.wasabisys.com/camp-databases/v0.1.1/orfcalling/xtree_db_gtdb207_kmer29_comp2_20220722.tar.gz
-# tar -zxvf xtree_db_gtdb207_kmer29_comp2_20220722.tar.gz
-```
-
-9. Update the locations of the test datasets in `test_data/samples.csv`, and the relevant parameters in `test_data/parameters` and `test_data/resources.yaml`.
-
-10. Make sure the installed pipeline works correctly. With 40 threads and a maximum of 150 GB allocated for a command (`xtree`), the test dataset should finish in approximately 38 minutes.
+4. Make sure the installed pipeline works correctly. With 40 threads and a maximum of 150 GB allocated for a command (`xtree`), the test dataset should finish in approximately 38 minutes.
 ```Bash
 python /path/to/camp_short-read-taxonomy/workflow/short-read-taxonomy.py test
 ```
