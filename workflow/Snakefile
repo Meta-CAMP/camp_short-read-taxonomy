@@ -194,6 +194,7 @@ rule kraken2:
 		kreport = join(dirs.OUT,'2_kraken2', 'raw_kraken', '{sample}', 'kreport.tsv')
 	log:
 		join(dirs.LOG, 'kraken2', '{sample}.out'),
+	conda: "kraken2",
 	threads: 
 		config['kraken2_threads'],
 	resources:
@@ -201,12 +202,11 @@ rule kraken2:
 	params:
 		out_dir = join(dirs.OUT, '2_kraken2', 'raw_kraken', '{sample}'),
 		database = config['kraken_bracken_database'],
-		kraken_exec = config['kraken2_executable'],
 	shell:
 		"""
 		rm -r {params.out_dir}
 		mkdir -p {params.out_dir}
-		{params.kraken_exec} --db {params.database} --threads {threads} --report {output.kreport} --output {output.kraken} --paired {input} > {log} 2>&1
+		kraken2 --db {params.database} --threads {threads} --report {output.kreport} --output {output.kraken} --paired {input} > {log} 2>&1
 		"""	
 
 
