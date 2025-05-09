@@ -1,4 +1,4 @@
-//# Short-Read Taxonomy
+# Short-Read Taxonomy
 
 [![Documentation Status](https://img.shields.io/badge/docs-passing-brightgreen.svg)](https://camp-documentation.readthedocs.io/en/latest/shortreadtax/index.html) ![Version](https://img.shields.io/badge/version-0.9.0-brightgreen)
 
