@@ -38,7 +38,7 @@ find_install_camp_env() {
         echo "✅ The main CAMP environment is already installed in $DEFAULT_CONDA_ENV_DIR."
     else
         echo "🚀 Installing the main CAMP environment in $DEFAULT_CONDA_ENV_DIR/..."
-        conda create --prefix "$DEFAULT_CONDA_ENV_DIR/camp" -c conda-forge -c bioconda biopython blast bowtie2 bumpversion click click-default-group cookiecutter jupyter matplotlib numpy pandas samtools scikit-learn scipy seaborn snakemake umap-learn upsetplot
+        conda create --prefix "$DEFAULT_CONDA_ENV_DIR/camp" -c conda-forge -c bioconda biopython blast bowtie2 bumpversion click click-default-group cookiecutter jupyter matplotlib numpy pandas samtools scikit-learn scipy seaborn snakemake=7.32.4 umap-learn upsetplot
         echo "✅ The main CAMP environment has been installed successfully!"
     fi
 }
@@ -65,7 +65,7 @@ ask_taxonomy_db() {
     echo "🧬 Setting up database for $TOOL_NAME..."
 
     while true; do
-        read -p "❓ Do you already have the $TOOL_NAME database installed? (y/n): " RESPONSE
+        read -p "❓ Do you already have the $DB_NAME database installed? (y/n): " RESPONSE
         case "$RESPONSE" in
             [Yy]* )
                 read -p "📂 Enter the full path to your existing $TOOL_NAME database: " DB_PATH
@@ -170,8 +170,9 @@ MPHLAN_PATH="${DATABASE_PATHS["METAPHLAN_DB"]}"
 KRAKEN_PATH="${DATABASE_PATHS["KRAKEN2_DB"]}"
 KRAKEN_EXECUTABLE=$(conda run -n bracken which kraken2 2>/dev/null)
 BBMASK_SCR=$(conda run -n bbmap which bbmask.sh 2> /dev/null)
-read -p "📏 How long are your reads?: " READ_LEN
+read -p "📏 How long are your reads?: (Press Enter for default: 150):" READ_LEN
 read -p "📊 What is the minimum relative abundance you're considering? (Press Enter for default: 0.001): " MIN_REL_ABUND
+READ_LEN="${READ_LEN:-150}"
 MIN_REL_ABUND="${MIN_REL_ABUND:-0.001}"
 
 # Remove existing parameters.yaml if present
@@ -185,15 +186,14 @@ cat <<EOF > "$PARAMS_FILE"
 
 ext: '$EXT_PATH'
 conda_prefix: '$DEFAULT_CONDA_ENV_DIR'
-mask: False
 metaphlan: True
 kraken2: True
-
 min_rel_abund: $MIN_REL_ABUND
 
 
 # --- masking --- #
 
+mask: False
 bbmask_script: '$BBMASK_SCR'
 
 
@@ -205,7 +205,6 @@ metaphlan_database: '$MPHLAN_PATH'
 # --- kraken2/bracken --- #
 
 kraken_bracken_database: '$KRAKEN_PATH'
-kraken2_executable: '$KRAKEN_EXECUTABLE'
 read_len: $READ_LEN
 EOF
 
@@ -223,15 +222,14 @@ cat <<EOF > "$PARAMS_FILE"
 
 ext: '$EXT_PATH'
 conda_prefix: '$DEFAULT_CONDA_ENV_DIR'
-mask: False
 metaphlan: True
 kraken2: True
-
 min_rel_abund: $MIN_REL_ABUND
 
 
 # --- masking --- #
 
+mask: False
 bbmask_script: '$BBMASK_SCR'
 
 
@@ -243,16 +241,17 @@ metaphlan_database: '$MPHLAN_PATH'
 # --- kraken2/bracken --- #
 
 kraken_bracken_database: '$KRAKEN_PATH'
-kraken2_executable: '$KRAKEN_EXECUTABLE'
 read_len: $READ_LEN
 EOF
 
 echo "✅ parameters.yaml file created successfully in configs/"
 
 # Modify test_data/samples.csv
-sed -i.bak "s|/path/to/camp_short-read-taxonomy|$MODULE_WORK_DIR|g" test_data/samples.csv
+INPUT_CSV="$MODULE_WORK_DIR/test_data/samples.csv" 
+echo "🚀 Generating test_data/samples.csv in $INPUT_CSV ..."
+sed -i.bak "s|/path/to/camp_short-read-taxonomy|$MODULE_WORK_DIR|g" $INPUT_CSV
 
-echo "✅ samples.csv successfully created in test_data/"
+echo "✅ Test data input CSV created at: $INPUT_CSV"
 
 echo "🎯 Setup complete! You can now test the workflow using \`python workflow/short-read-taxonomy.py test\`"
 
