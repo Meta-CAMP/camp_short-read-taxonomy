@@ -128,6 +128,9 @@ dmypy.json
 *.idea
 *..bfg-report
 
-
+# Other
 .git 2/
 test_data/samples.csv.bak
+.snakemake/
+test_out/
+short-read-taxonomy.out

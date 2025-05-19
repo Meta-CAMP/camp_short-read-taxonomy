@@ -271,6 +271,7 @@ rule extract_unclassified_kraken:
 		unc = join(dirs.OUT, '2_kraken2', 'raw_kraken', '{sample}', 'unclassified.txt'),
 	output: 
 		join(dirs.OUT, 'final_reports', 'unclassified', 'kraken_bracken', '{sample}_{dir}.fastq.gz'),
+	conda: "seqtk",
 	resources:
 		mem_mb = config['kraken2_mem_mb'],
 	shell:

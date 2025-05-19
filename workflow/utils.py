@@ -145,7 +145,7 @@ def reformat_row_meta(row, min_abund):
 # In:   k__Bacteria|p__Bacteroidetes    2|976   71.60402
 # Out:  classifier,clade,taxid,sample_X_ra
 def standardize_metaphlan(fi, out_dir, min_abund):
-    raw_df = pd.read_csv(fi, sep = '\t', skiprows = 5, header = 0, index_col = None)
+    raw_df = pd.read_csv(fi, sep = '\t', skiprows = 6, header = 0, index_col = None)
     sample = basename(fi).split('.')[0]
     out_lst = list(raw_df.apply(lambda row : reformat_row_meta(row, min_abund), axis = 1))
     basic_cols = ['classifier', 'clade', 'tax_id']

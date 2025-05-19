@@ -65,7 +65,7 @@ ask_taxonomy_db() {
     echo "🧬 Setting up database for $TOOL_NAME..."
 
     while true; do
-        read -p "❓ Do you already have the $DB_NAME database installed? (y/n): " RESPONSE
+        read -p "❓ Do you already have the $TOOL_NAME database installed? (y/n): " RESPONSE
         case "$RESPONSE" in
             [Yy]* )
                 read -p "📂 Enter the full path to your existing $TOOL_NAME database: " DB_PATH
@@ -150,7 +150,7 @@ DEFAULT_CONDA_ENV_DIR=$(conda info --base)/envs
 find_install_camp_env
 
 # ...auxiliary environments
-MODULE_PKGS=('bbmap' 'metaphlan' 'kraken2' 'bracken') # Add any additional conda packages here
+MODULE_PKGS=('bbmap' 'metaphlan' 'kraken2' 'bracken' 'seqtk') # Add any additional conda packages here
 for m in "${MODULE_PKGS[@]}"; do
     find_install_conda_env "$m"
 done
@@ -179,7 +179,6 @@ MIN_REL_ABUND="${MIN_REL_ABUND:-0.001}"
 [ -f "$PARAMS_FILE" ] && rm "$PARAMS_FILE"
 # Create new parameters.yaml file
 cat <<EOF > "$PARAMS_FILE"
-
 #'''Parameters config.'''
 
 # --- general --- #

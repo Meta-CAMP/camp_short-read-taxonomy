@@ -1,42 +1,26 @@
-#'''Parameters config.'''#
-
+#'''Parameters config.'''
 
 # --- general --- #
 
-ext: '/home/lam4003/bin/camp_short-read-taxonomy/workflow/ext'
-mask: False 
-metaphlan: True 
-kraken2: True 
-# xtree kingdom options: bacterial_archaeal, viral, protozoa_fungi
-# Separate options on one line with commas (ex. viral,protozoa_fungi)
-xtree: 'bacterial_archaeal,protozoa_fungi,viral'
+ext: ''
+conda_prefix: ''
+metaphlan: True
+kraken2: True
 min_rel_abund: 0.001
 
 
 # --- masking --- #
 
+mask: False
 bbmask_script: ''
 
 
 # --- metaphlan --- #
 
-metaphlan_database: '/workdir/lam4003/Databases/Metaphlan4_29122022'
+metaphlan_database: ''
 
 
 # --- kraken2/bracken --- #
 
-kraken_bracken_database: '/workdir/lam4003/Databases/Kraken2_29122022/Prebuilt_09122022'
-kraken2_executable: '/home/lam4003/bin/kraken2/kraken2'
-read_len: 100
-
-
-# --- xtree --- #
-
-bacterial_archaeal_database: '/workdir/lam4003/Databases/XTree_TaxClass_Dbs_29122022/bacterial_archaeal.xtr'
-viral_database: '/workdir/lam4003/Databases/XTree_TaxClass_Dbs_29122022/viral.xtr'
-protozoa_fungi_database: '/workdir/lam4003/Databases/XTree_TaxClass_Dbs_29122022/protozoa_fungi.xtr'
-xtree_executable: '/home/lam4003/bin/UTree/xtree'
-ncbi_tax_names: '/workdir/lam4003/Databases/Kraken2_29122022/taxonomy/names.dmp'
-# Original defaults: 0.02 (thresh = min_rel_abund), 0.05, 0.01
-hthresh : 0
-uthresh : 0
+kraken_bracken_database: ''
+read_len: 150
