@@ -88,18 +88,17 @@ ask_taxonomy_db() {
                             echo "📡 Downloading $TOOL_NAME DB to $INSTALL_DIR ..."
 
                             if [[ "$TOOL_NAME" == "MetaPhlAn" ]]; then
-                                wget -c https://s3.us-east-1.wasabisys.com/camp-databases/v0.1.1/taxonomy/metaphlan_20220926.tar.gz -P "$INSTALL_DIR"
-                                tar -zxvf "$INSTALL_DIR/metaphlan_20220926.tar.gz" -C "$INSTALL_DIR"
-                                rm "$INSTALL_DIR/metaphlan_20220926.tar.gz"
-                                DB_PATH="$INSTALL_DIR/metaphlan_20220926"
-
+                                conda activate metaphlan
+                                metaphlan --install --bowtie2db $INSTALL_DIR
+                                DB_PATH="$INSTALL_DIR/mpa_vJan25_CHOCOPhlAnSGB_202503"
+                                conda deactivate
                             elif [[ "$TOOL_NAME" == "Kraken2" ]]; then
-                                echo "⚠️ Note: The Wasabi Kraken2 database may be incomplete. Prefer the official Kraken2 build if needed."
-                                wget -c https://s3.us-east-1.wasabisys.com/camp-databases/v0.1.1/taxonomy/Kraken2.tar.gz -P "$INSTALL_DIR"
-                                tar -zxvf "$INSTALL_DIR/Kraken2.tar.gz" -C "$INSTALL_DIR"
-                                rm "$INSTALL_DIR/Kraken2.tar.gz"
-                                DB_PATH="$INSTALL_DIR/Kraken2"
-
+                                conda activate kraken2
+                                read -p "📥 How many threads would you like to use to install the 100 GB Kraken2 database? (default: 10): " USER_THREADS
+                                INSTALL_THREADS="$(realpath "${USER_THREADS:-10}")"
+                                kraken2-build --standard --threads ${INSTALL_THREADS} --db $INSTALL_DIR/kraken2_dbs
+                                DB_PATH="$INSTALL_DIR/kraken2_dbs"
+                                conda deactivate
                             else
                                 echo "❌ Unsupported tool: $TOOL_NAME"
                                 return
