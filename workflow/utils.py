@@ -228,27 +228,49 @@ def standardize_xtree(fi, out_dir, ncbi_taxid, uthresh):
 
 
 def concat_tbls(sample_lst, fo):
-    s_lst = []
-    tmp_colnames = []
-    sample_names = []
+    # Case 1: only one file → just copy it directly
     if len(sample_lst) == 1:
         shutil.copy(sample_lst[0], fo)
-    else:
-        for i,s in enumerate(sample_lst):
-            df = pd.read_csv(s, header = 0)
-            s_lst.append(df)
-            sample = df.columns[-1]
-            sample_names.append(sample)
-            if i < len(sample_lst) - 1:
-                tmp_colnames.extend(['tmp', 'tmp', 'tmp', sample])
-            else:
-                tmp_colnames.extend(df.columns)
-        df = pd.concat(s_lst, axis = 1, join = 'outer')
-        df.columns = tmp_colnames
-        df.drop(columns = 'tmp', axis = 1, inplace = True) # Get rid of all but the last set of 'classifier, clade, tax_id'
-        df = df[['classifier', 'clade', 'tax_id'] + sample_names]
-        df.fillna(0)
-        df.to_csv(fo, header = True, index = False)
+        return
+
+    merged = None
+    sample_cols = []
+
+    for path in sample_lst:
+        df = pd.read_csv(path, header=0)
+
+        # The last column contains the sample name
+        sample = df.columns[-1]
+        sample_cols.append(sample)
+
+        # Normalize key fields to avoid mismatches due to extra spaces
+        df['classifier'] = df['classifier'].astype(str).str.strip()
+        df['clade']      = df['clade'].astype(str).str.strip()
+        df['tax_id']     = df['tax_id'].astype(str).str.strip()
+
+        # Keep only the relevant columns
+        df = df[['classifier', 'clade', 'tax_id', sample]]
+
+        # If there are duplicate taxa within the same file, sum their values
+        df = df.groupby(['classifier','clade','tax_id'], as_index=False).sum(numeric_only=True)
+
+        # For the first file, initialize the merged table; 
+        # for the next files, perform an outer merge on taxonomic keys
+        if merged is None:
+            merged = df
+        else:
+            merged = pd.merge(
+                merged, df,
+                on=['classifier','clade','tax_id'],
+                how='outer'
+            )
+
+    # Replace any missing abundance values with 0 for each sample column
+    for c in sample_cols:
+        merged[c] = pd.to_numeric(merged[c], errors='coerce').fillna(0)
+
+    # Save the merged table
+    merged.to_csv(fo, index=False)
 
 
 def extract_unclassified_names(fi, fo):

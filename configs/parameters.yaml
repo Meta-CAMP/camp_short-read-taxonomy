@@ -21,6 +21,10 @@ metaphlan_database: ''
 
 
 # --- kraken2/bracken --- #
-
+# Use "--memory-mapping" when the Kraken2 database is very large or available RAM is limited.
+# This option reads the database directly from disk instead of loading it entirely into memory,
+# which significantly reduces RAM usage but may slightly slow down execution.
+# If not needed, leave the field empty as: ""
 kraken_bracken_database: ''
 read_len: 150
+kraken2_extra_args: "--memory-mapping"
