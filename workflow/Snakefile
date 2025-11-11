@@ -202,11 +202,12 @@ rule kraken2:
 	params:
 		out_dir = join(dirs.OUT, '2_kraken2', 'raw_kraken', '{sample}'),
 		database = config['kraken_bracken_database'],
+                extra = config.get('kraken2_extra_args', '')
 	shell:
 		"""
 		rm -r {params.out_dir}
 		mkdir -p {params.out_dir}
-		kraken2 --db {params.database} --threads {threads} --report {output.kreport} --output {output.kraken} --paired {input} > {log} 2>&1
+		kraken2 {params.extra} --db {params.database} --threads {threads} --report {output.kreport} --output {output.kraken} --paired {input} > {log} 2>&1
 		"""	
 
 
