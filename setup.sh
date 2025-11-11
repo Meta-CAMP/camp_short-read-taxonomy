@@ -89,7 +89,8 @@ ask_taxonomy_db() {
 
                             if [[ "$TOOL_NAME" == "MetaPhlAn" ]]; then
                                 conda activate metaphlan
-                                metaphlan --install --bowtie2db $INSTALL_DIR
+                                INDEX_NAME="mpa_vJan25_CHOCOPhlAnSGB_202503"
+                                metaphlan --install -x "$INDEX_NAME" --db_dir "$INSTALL_DIR"
                                 DB_PATH="$INSTALL_DIR/mpa_vJan25_CHOCOPhlAnSGB_202503"
                                 conda deactivate
                             elif [[ "$TOOL_NAME" == "Kraken2" ]]; then

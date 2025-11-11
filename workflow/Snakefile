@@ -110,9 +110,9 @@ rule metaphlan:
 	shell:
 		"""
 		metaphlan --nproc {threads} -t rel_ab_w_read_stats --force \
-			--bowtie2db {params.database} \
-			--bowtie2out {params.prefix}.bowtie2.bz2 \
-			-o {output.report} --samout {output.sam} \
+			--db_dir {params.database} \
+			--mapout {params.prefix}.bowtie2.bz2 \
+			-o {output.report} -s {output.sam} \
 			--input_type fastq $(echo {input} | sed 's/ /,/g') > {log} 2>&1
 		"""
 
